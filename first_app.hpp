@@ -34,14 +34,14 @@ private:
     float cycle = 0;
     float defaultSize = 1.f;
     float timeDifference = .0f;
-    int currentDepth = 8;
+    int currentDepth = 9;
 
     std::vector<LveModel::Vertex> basicTriangleVertices = {
     {glm::vec2(0.0f, -1.0f)},
     {glm::vec2(1.0f, 1.0f)},
     {glm::vec2(-1.0f, 1.0f)}
 };
-    LveWindow lveWindow{WIDTH, HEIGHT, "Hello Vulkan!"};
+    LveWindow lveWindow{WIDTH, HEIGHT, "sierpinski"};
     LveDevice lveDevice{lveWindow};
     LveRenderer lveRenderer{lveWindow, lveDevice};
     std::vector<LveGameObject> gameObjects;

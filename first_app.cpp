@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
+#include <algorithm>
 #include <iostream>
 #include <stdexcept>
 
@@ -22,34 +23,37 @@ void FirstApp::run() {
     SimpleRenderSystem simpleRendereSystem{lveDevice, lveRenderer.getSwapChainRenderPass()};
 
     std::cout << "max push conts size = " << lveDevice.properties.limits.maxPushConstantsSize << "\n";
-    float move = 0.2f;
+    float eraseTreshold = 0.01f;
     while (!lveWindow.shouldClose()) {
 
         auto currentTime = std::chrono::high_resolution_clock::now();
         timeDifference = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - lastTime).count();
 
-        if (timeDifference >= 1.f) { 
+        if (timeDifference >= 1.f) {
 
-            float offset = static_cast<float>(gameObjects.size()); 
+            float offset = static_cast<float>(gameObjects.size());
             // addNewTriangle(offset);
             lastTime = currentTime;
-            std::cout << timeDifference << std::endl;
-            std::cout << sizeof(gameObjects) << std::endl;
-            std::cout << "slmm" << gameObjects.size() << "slmm\n";
 
             currentDepth--;
+            std::cout << gameObjects.size() << std::endl;
         }
-        /*for (auto &gameObject : gameObjects) {
-            // Update gameObject.alpha based on time or some other logic
-            // For example, a simple fade-in effect:
-            
-        }*/
         for (auto &gameObject : gameObjects) {
             if (gameObject.depth == currentDepth + 1 && currentDepth > 0) {
                 gameObject.alpha = 1 - fmod(timeDifference, 1.0f);
+                
             }
         }
 
+        gameObjects.erase(
+            std::remove_if(
+                gameObjects.begin(),
+                gameObjects.end(),
+                [eraseTreshold](const auto &gameObject) {
+                    return std::abs(gameObject.alpha) < eraseTreshold;
+                }),
+            gameObjects.end());
+        
         // poll events checks if any events are triggered (like keyboard or mouse input)
         // or dismissed the window etc.
         glfwPollEvents();
@@ -80,16 +84,13 @@ void FirstApp::sierpinski(
         {right},
         {left}};
 
-    
     auto lveModel = std::make_shared<LveModel>(lveDevice, triangleVertices);
 
-    
     auto triangle = LveGameObject::createGameObject();
-    triangle.model = lveModel;           
-    triangle.depth = depth;              
-    triangle.color = {0.1f, 0.8f, 0.1f}; 
+    triangle.model = lveModel;
+    triangle.depth = depth;
+    triangle.color = {0.1f, 0.8f, 0.1f};
 
-   
     gameObjects.push_back(std::move(triangle));
     if (depth >= 0) {
 
