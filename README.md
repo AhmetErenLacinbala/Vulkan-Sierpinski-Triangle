@@ -22,5 +22,5 @@ This project demonstrates how to render a Sierpinski Triangle using Vulkan. I ha
 After building, you can run the project using:
 ./VulkanTest
 
-## Running the Project for VS Code:
+## Running the Project with VS Code:
 VS Code configurations has been made. So you can just debug your code through the VS Code instead.
