@@ -46,6 +46,5 @@ private:
     LveRenderer lveRenderer{lveWindow, lveDevice};
     std::vector<LveGameObject> gameObjects;
 
-    std::chrono::high_resolution_clock::time_point lastTime;
 };
 } // namespace lve

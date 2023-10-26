@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <chrono>
 #include <stdexcept>
 
 namespace lve {
@@ -22,42 +23,36 @@ FirstApp::~FirstApp() {
 void FirstApp::run() {
     SimpleRenderSystem simpleRendereSystem{lveDevice, lveRenderer.getSwapChainRenderPass()};
     int currentDepth = -1;
+    bool delayFlag = false;
     std::cout << "max push conts size = " << lveDevice.properties.limits.maxPushConstantsSize << "\n";
     float eraseTreshold = 0.01f;
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    std::chrono::high_resolution_clock::time_point lastTime = currentTime;
     while (!lveWindow.shouldClose()) {
 
-        auto currentTime = std::chrono::high_resolution_clock::now();
+        currentTime = std::chrono::high_resolution_clock::now();
         timeDifference = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - lastTime).count();
 
         if (timeDifference >= 1.f) {
-
+            std::cout<< "FPS: " << 1.f/timeDifference << std::endl;
+            std::cout<< "memory: " << gameObjects.size() << std::endl;
             float offset = static_cast<float>(gameObjects.size());
-            // addNewTriangle(offset);
             lastTime = currentTime;
-
-            if (currentDepth < maxDepth-1)
+            if(currentDepth < maxDepth - 2){
+                gameObjects.erase(gameObjects.begin());
+            }
+            if (currentDepth < maxDepth-1) {
                 currentDepth++;
             std::cout << currentDepth << std::endl;
+            }
         }
         if (currentDepth < maxDepth-1) {
 
-            for (auto &gameObject : gameObjects) {
-                if (gameObject.depth == currentDepth) {
-                    std::cout << "depth: " << gameObject.depth << std::endl
-                              << currentDepth << std::endl;
-                    gameObject.alpha = 1 - fmod(timeDifference, 1.0f);
-                }
-            }
+            gameObjects[0].alpha = 1 - fmod(timeDifference, 1.0f);
+    
         }
 
-        gameObjects.erase(
-            std::remove_if(
-                gameObjects.begin(),
-                gameObjects.end(),
-                [eraseTreshold](const auto &gameObject) {
-                    return std::abs(gameObject.alpha) < eraseTreshold;
-                }),
-            gameObjects.end());
+       
 
         // poll events checks if any events are triggered (like keyboard or mouse input)
         // or dismissed the window etc.
@@ -85,7 +80,6 @@ void FirstApp::loadGameObjects() {
         auto triangle = LveGameObject::createGameObject();
         triangle.model = lveModel;
         triangle.color = {0.1f, 0.8f, 0.1f};
-        //triangle.transform2d.scale = {2.f, 2.f};
         triangle.depth = i++;
         gameObjects.push_back(std::move(triangle));
     }
