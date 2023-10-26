@@ -1,7 +1,7 @@
 # Vulkan Sierpinski Triangle
 
 ## Overview
-This project demonstrates how to render a Sierpinski Triangle using Vulkan. I have been making this project by following [Brendan Galea's](https://www.youtube.com/@BrendanGalea) Vulkan tutorials. This project hasn't been tested in operating systems. I had used MacOs used MacOs with an M2 chip so far
+This project demonstrates how to render a Sierpinski Triangle using Vulkan. I have been making this project by following [Brendan Galea's](https://www.youtube.com/@BrendanGalea) Vulkan tutorials. This project hasn't been tested in all operating systems. I had used MacOs used MacOs with an M2 chip so far
 
 
 ## Requirements
