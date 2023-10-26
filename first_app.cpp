@@ -21,7 +21,7 @@ FirstApp::~FirstApp() {
 
 void FirstApp::run() {
     SimpleRenderSystem simpleRendereSystem{lveDevice, lveRenderer.getSwapChainRenderPass()};
-
+    int currentDepth = -1;
     std::cout << "max push conts size = " << lveDevice.properties.limits.maxPushConstantsSize << "\n";
     float eraseTreshold = 0.01f;
     while (!lveWindow.shouldClose()) {
@@ -35,13 +35,18 @@ void FirstApp::run() {
             // addNewTriangle(offset);
             lastTime = currentTime;
 
-            currentDepth--;
-            std::cout << gameObjects.size() << std::endl;
+            if (currentDepth < maxDepth-1)
+                currentDepth++;
+            std::cout << currentDepth << std::endl;
         }
-        for (auto &gameObject : gameObjects) {
-            if (gameObject.depth == currentDepth + 1 && currentDepth > 0) {
-                gameObject.alpha = 1 - fmod(timeDifference, 1.0f);
-                
+        if (currentDepth < maxDepth-1) {
+
+            for (auto &gameObject : gameObjects) {
+                if (gameObject.depth == currentDepth) {
+                    std::cout << "depth: " << gameObject.depth << std::endl
+                              << currentDepth << std::endl;
+                    gameObject.alpha = 1 - fmod(timeDifference, 1.0f);
+                }
             }
         }
 
@@ -53,7 +58,7 @@ void FirstApp::run() {
                     return std::abs(gameObject.alpha) < eraseTreshold;
                 }),
             gameObjects.end());
-        
+
         // poll events checks if any events are triggered (like keyboard or mouse input)
         // or dismissed the window etc.
         glfwPollEvents();
@@ -69,12 +74,25 @@ void FirstApp::run() {
 }
 
 void FirstApp::loadGameObjects() {
-    std::vector<LveModel::Vertex> vertices{};
-    sierpinski(vertices, currentDepth, {-1.f, 1.f}, {1.f, 1.f}, {0.0f, -1.f});
+    std::vector<std::vector<LveModel::Vertex>> vertices;
+    for (int i = 0; i < maxDepth; i++) {
+        vertices.push_back(std::vector<LveModel::Vertex>());
+    }
+    int i = 0;
+    sierpinski(vertices, maxDepth, {-1.f, 1.f}, {1.f, 1.f}, {0.0f, -1.f});
+    for (auto &vertex : vertices) {
+        auto lveModel = std::make_shared<LveModel>(lveDevice, vertex);
+        auto triangle = LveGameObject::createGameObject();
+        triangle.model = lveModel;
+        triangle.color = {0.1f, 0.8f, 0.1f};
+        //triangle.transform2d.scale = {2.f, 2.f};
+        triangle.depth = i++;
+        gameObjects.push_back(std::move(triangle));
+    }
 }
 
 void FirstApp::sierpinski(
-    std::vector<LveModel::Vertex> &vertices,
+    std::vector<std::vector<LveModel::Vertex>> &vertices,
     int depth,
     glm::vec2 left,
     glm::vec2 right,
@@ -83,17 +101,10 @@ void FirstApp::sierpinski(
         {top},
         {right},
         {left}};
-
-    auto lveModel = std::make_shared<LveModel>(lveDevice, triangleVertices);
-
-    auto triangle = LveGameObject::createGameObject();
-    triangle.model = lveModel;
-    triangle.depth = depth;
-    triangle.color = {0.1f, 0.8f, 0.1f};
-
-    gameObjects.push_back(std::move(triangle));
+    vertices[maxDepth - depth].push_back({top});
+    vertices[maxDepth - depth].push_back({right});
+    vertices[maxDepth - depth].push_back({left});
     if (depth >= 0) {
-
         auto topleft = 0.5f * (top + left);
         auto topright = 0.5f * (top + right);
         auto rightleft = 0.5f * (right + left);

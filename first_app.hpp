@@ -26,7 +26,7 @@ private:
     bool isTime();
     void createSier();
     void sierpinski(
-        std::vector<LveModel::Vertex> &vertices,
+        std::vector<std::vector<LveModel::Vertex>> &vertices,
         int depth,
         glm::vec2 left,
         glm::vec2 right,
@@ -34,7 +34,7 @@ private:
     float cycle = 0;
     float defaultSize = 1.f;
     float timeDifference = .0f;
-    int currentDepth = 9;
+    int maxDepth = 13;
 
     std::vector<LveModel::Vertex> basicTriangleVertices = {
     {glm::vec2(0.0f, -1.0f)},
